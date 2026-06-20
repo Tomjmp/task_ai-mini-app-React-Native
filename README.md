@@ -1,56 +1,89 @@
-# Welcome to your Expo app 👋
+# TaskAI · Mini-app React Native ⚡
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Versión simplificada de **TaskAI** construida con **React Native + Expo** y
+**TypeScript**. Su objetivo es demostrar que el **mismo backend Supabase** puede
+servir simultáneamente a la app **Flutter** y a una app **React Native**: ambas
+leen y escriben sobre la misma tabla `tasks`.
 
-## Get started
+> App principal (Flutter): https://github.com/Tomjmp/task_ai
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## ✨ Funcionalidades
 
-2. Start the app
+- **Autenticación** con Supabase Auth (mismo backend que Flutter): login y
+  registro con correo y contraseña.
+- **Lista de tareas**: lee del backend las tareas del usuario autenticado,
+  con pull-to-refresh y marcar como completada (actualización optimista).
+- **Crear tarea**: formulario con título, descripción, categoría y prioridad;
+  escribe en la misma tabla `tasks` que consume Flutter.
+- **Navegación con Expo Router** (file-based) y **3 pantallas**.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🧭 Navegación (Expo Router)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/app/
+├── _layout.tsx       # Stack raíz + AuthProvider (contexto de sesión)
+├── index.tsx         # Redirige según sesión: /login o /tasks
+├── login.tsx         # Pantalla 1 · Login / Registro
+└── tasks/
+    ├── index.tsx     # Pantalla 2 · Lista de tareas
+    └── new.tsx       # Pantalla 3 · Crear tarea (modal)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+```
+src/
+├── lib/
+│   ├── supabase.ts   # Cliente Supabase (con AsyncStorage)
+│   ├── types.ts      # Tipos Task / categorías / prioridades
+│   └── uuid.ts       # UUID v4 en el cliente (igual que Flutter)
+└── contexts/
+    └── auth.tsx      # Contexto de sesión (onAuthStateChange)
+```
 
-### Other setup steps
+---
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## 🛠️ Stack
 
-## Learn more
+- **Expo** (React Native) + **TypeScript** (modo `strict`, sin `any`).
+- **Expo Router** para navegación basada en archivos.
+- **@supabase/supabase-js** + **@react-native-async-storage/async-storage**
+  para persistir la sesión.
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 🚀 Ejecución
 
-## Join the community
+```bash
+npm install
+npx expo start
+```
+Luego abre la app en **Expo Go** (escaneando el QR) o en un emulador:
+```bash
+npx expo start --android   # Android
+npx expo start --ios       # iOS
+npx expo start --web       # Navegador
+```
 
-Join our community of developers creating universal apps.
+> El proyecto Supabase ya está configurado en `src/lib/supabase.ts` (misma URL y
+> *publishable key* que la app Flutter). Para probar el login, usa una cuenta ya
+> creada en la app Flutter o regístrate desde la pantalla de login.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## ✅ Verificación de tipos
+
+```bash
+npx tsc --noEmit
+```
+
+---
+
+## 🔗 Backend compartido
+
+La tabla `tasks` en Supabase tiene las columnas: `id`, `user_id`, `title`,
+`description`, `category`, `priority`, `completed`, `due_date`, `created_at`,
+`updated_at`, `deleted_at`. Tanto Flutter como esta app usan ese mismo esquema,
+por lo que una tarea creada en una aparece en la otra.
